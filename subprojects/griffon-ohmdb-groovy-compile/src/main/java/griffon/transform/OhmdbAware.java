@@ -15,8 +15,6 @@
  */
 package griffon.transform;
 
-import griffon.plugins.ohmdb.DbHandler;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,7 +25,7 @@ import java.lang.annotation.Target;
  * <p>Annotates a class.</p>
  *
  * @author Andres Almiray
- * @see DbHandler
+ * @see griffon.plugins.ohmdb.DbHandler
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)
