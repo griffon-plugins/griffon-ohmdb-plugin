@@ -1,0 +1,11 @@
+
+:link_ohmdb: link:https://github.com/ohmdb/ohmdb[Ohmdb, window="_blank"]
+:link_db: com.ohmdb.api.Db
+:api_db_handler: link:api/griffon/plugins/ohmdb/DbHandler.html[DbHandler, window="_blank"]
+:api_db_callback: link:api/griffon/plugins/ohmdb/DbCallback.html[DbCallback, window="_blank"]
+:api_ohmdb_aware: link:api/griffon/transform/OhmdbAware.html[@OhmdbAware, window="_blank"]
+:api_ohmdb_bootstrap: link:api/griffon/plugins/ohmdb/OhmdbBootstrap.html[OhmdbBootstrap, window="_blank"]
+
+:path_griffon_ohmdb_core: {rootdir}/subprojects/griffon-ohmdb-core
+:path_griffon_ohmdb_groovy_compile: {rootdir}/subprojects/griffon-ohmdb-groovy-compile
+

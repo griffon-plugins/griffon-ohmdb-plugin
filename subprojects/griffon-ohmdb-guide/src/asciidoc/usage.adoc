@@ -1,0 +1,223 @@
+
+[[_Usage]]
+= Usage
+
+The following sections describe how you may use this plugin in an project.
+
+== Configuration
+
+You must create a configuration file named `Ohmdb` that holds the settings for creating instances of `com.ohmdb.api.Db`.
+This file follows the same standard configuration mechanism as the application's `Config` file, which means you can define the
+configuration using
+
+ * a properties file
+ * a Java file
+ * a Groovy script
+
+The following example shows the default settings needed to connect the default datasource taking into account that each
+environment may connect to a different datasource.
+
+[source,groovy,options="nowrap"]
+.src/main/resources/Ohmdb.groovy
+----
+include::{path_griffon_ohmdb_core}/src/test/resources/Ohmdb.groovy[lines=16..36]
+----
+
+You may configure multiple named datasources (the default factory is aptly named `default`) as the following snippet
+shows
+
+[source,groovy,options="nowrap"]
+.src/main/resources/Ohmdb.groovy
+----
+include::{path_griffon_ohmdb_core}/src/test/resources/Ohmdb.groovy[lines=38..47]
+----
+
+The following properties are optional
+
+[cols="4*",options="header"]
+|===
+| Property           | Type    | Default | Description
+| delete             | boolean | false   | Deletes the datasource file when disconnectingfrom the datasource.
+| connect_on_startup | boolean | false   | Establishes a connection to the datasource at the beginning of the `Startup` phase.
+|===
+
+The plugin's <<_modules, module>> registers a `{api_db_handler}` helper class that defines the base contract
+for accessing a datasource and issue queries to it. This class has the following methods
+
+[source,java,options="nowrap"]
+.griffon.plugins.ohmdb.DbHandler.java
+----
+include::{path_griffon_ohmdb_core}/src/main/java//griffon/plugins/ohmdb/DbHandler.java[tags=methods,indent=0]
+----
+
+These method are aware of multiple datasources. If no dataSourceName is specified when calling them then the default
+datasource will be selected. You can inject an instance of this class anywhere it's needed using `@Inject`. There is one
+callback you may use with this method: `{api_db_callback}`.
+
+This callback is defined using a functional interface approach, which means you can apply lambda expressions if running
+with JDK8+ or closures if running Groovy.
+
+[source,java,options="nowrap"]
+.griffon.plugins.ohmdb.DbCallback.java
+----
+include::{path_griffon_ohmdb_core}/src/main/java/griffon/plugins/ohmdb/DbCallback.java[lines=26..-1]
+----
+
+=== Bootstrap
+
+You may execute arbitrary datasource calls during connection and disconnection from a `com.ohmdb.api.Db`. Simply
+create a class that implements the `{api_ohmdb_bootstrap}` interface and register it within a module, for example
+
+[source,java,options="nowrap"]
+.src/main/java/com/acme/SampleOhmdbBootstrap.java
+----
+package com.acme;
+
+import griffon.plugins.ohmdb.OhmdbBootstrap;
+import com.ohmdb.api.Db;
+
+import javax.annotation.Nonnull;
+import javax.inject.Named;
+
+@Named("sample")
+public class SampleOhmdbBootstrap implements OhmdbBootstrap {
+    @Override
+    public void init(@Nonnull String dataSourceName, @Nonnull Db db) {
+        // operations after first connection to db
+    }
+
+    @Override
+    public void destroy(@Nonnull String dataSourceName, @Nonnull Db db) {
+        // operations before disconnecting from the db
+    }
+}
+----
+
+[source,java,options="nowrap"]
+.src/main/java/com/acme/ApplicationModule.java
+----
+package com.acme;
+
+import griffon.plugins.ohmdb.OhmdbBootstrap;
+import griffon.core.injection.Module;
+import org.codehaus.griffon.runtime.core.injection.AbstractModule;
+import org.kordamp.jipsy.ServiceProviderFor;
+
+@ServiceProviderFor(Module.class)
+public class ApplicationModule extends AbstractModule {
+    @Override
+    protected void doConfigure() {
+        bind(OhmdbBootstrap.class)
+            .to(SampleOhmdbBootstrap.class)
+            .asSingleton();
+    }
+}
+----
+
+== Example
+
+The following is a trivial usage of the `{api_db_handler}` inside a Java service
+
+[source,java,options="nowrap"]
+.com.acme.SampleService.java
+----
+package com.acme;
+
+import griffon.core.artifact.GriffonService;
+import griffon.metadata.ArtifactProviderFor;
+import org.codehaus.griffon.runtime.core.artifact.AbstractGriffonService;
+
+import griffon.plugins.ohmdb.DbHandler;
+import griffon.plugins.ohmdb.DbCallback;
+import com.ohmdb.api.Db;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+
+@ArtifactProviderFor(GriffonService.class)
+public class SampleService extends AbstractGriffonService {
+    @Inject
+    private DbHandler dbHandler;
+
+    public String getPersonName(final int id) {
+         return dbHandler.withOhmdb(new DbCallback<String>() {
+             public String handle(@Nonnull String dataSourceName, @Nonnull Db db) {
+                 ...
+         });
+    }
+}
+----
+
+Here's the Groovy version of it
+
+[source,groovy,options="nowrap"]
+.com.acme.SampleService.groovy
+----
+package com.acme
+
+import griffon.core.artifact.GriffonService
+import griffon.metadata.ArtifactProviderFor
+
+import griffon.plugins.ohmdb.DbHandler
+
+import javax.inject.Inject
+
+@ArtifactProviderFor(GriffonService)
+class SampleService {
+    @Inject
+    private DbHandler dbHandler
+
+    String getPersonName(int id) {
+         dbHandler.withOhmdb { String dataSourceName, Db db ->
+             ...
+         }
+    }
+}
+----
+
+== Events
+
+The following events will be triggered by `{api_db_handler}`
+
+OhmdbConnectStart(String dataSourceName, Map<String, Object> config):: Triggered before connecting to the datasource.
+OhmdbConfigurationSetup(String dataSourceName, Map<String, Object> config, Db db):: Triggered when configuring the database
+OhmdbConnectEnd(String dataSourceName, Map<String, Object> config, Db db):: Triggered after connecting to the datasource.
+OhmdbDisconnectStart(String dataSourceName, Map<String, Object> config, Db db):: Triggered before disconnecting from the datasource.
+OhmdbDisconnectEnd(String dataSourceName, Map<String, Object> config):: Triggered after disconnecting from the datasource.
+
+NOTE: DataSource events may be triggered during connection and disconnection from a `com.ohmdb.api.Db`.
+
+== AST Transformation
+
+You can apply the `{api_ohmdb_aware}` AST transformation on any class. This injects the behavior of `{api_db_handler}`
+into said class. The previous Groovy service example can be rewritten as follows
+
+[source,groovy,options="nowrap"]
+.com.acme.SampleService.groovy
+----
+package com.acme
+
+import griffon.core.artifact.GriffonService
+import griffon.metadata.ArtifactProviderFor
+import griffon.transform.OhmdbAware
+
+import com.ohmdb.api.Db
+
+@OhmdbAware
+@ArtifactProviderFor(GriffonService)
+class SampleService {
+    String getPersonName(int id) {
+         withOhmdb { String dataSourceName, Db db ->
+             ...
+         }
+    }
+}
+----
+
+== DSL Descriptors
+
+This plugin provides DSL descriptors for Intellij IDEA and Eclipse (provided you have the Groovy Eclipse plugin installed).
+These descriptors are found inside the `griffon-ohmdb-groovy-compile-{project-version}.jar`, with locations
+
+ * dsdl/griffon_ohmdb.dsld
+ * gdsl/griffon_ohmdb.gdsl

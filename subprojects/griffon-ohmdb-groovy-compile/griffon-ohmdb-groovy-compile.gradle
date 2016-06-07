@@ -1,0 +1,15 @@
+apply plugin: 'groovy'
+apply from: rootProject.file('gradle/code-coverage.gradle')
+
+dependencies {
+    compile project(':griffon-ohmdb-core')
+    compile "org.codehaus.griffon:griffon-groovy-compile:${griffonVersion}"
+    compileOnly 'com.ohmdb:ohmdb-all:1.0.0'
+
+    testCompileOnly "org.codehaus.griffon:griffon-groovy-compile:${griffonVersion}"
+    testCompile 'com.ohmdb:ohmdb-all:1.0.0'
+    testRuntime "org.codehaus.griffon:griffon-guice:${griffonVersion}"
+    testRuntime 'org.slf4j:slf4j-simple:1.7.18'
+}
+
+compileGroovy.enabled = false
