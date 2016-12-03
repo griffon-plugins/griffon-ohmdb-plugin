@@ -14,7 +14,7 @@ dependencies {
 
     compile 'com.ohmdb:ohmdb-all:1.0.0'
 
-    testRuntime 'org.slf4j:slf4j-simple:1.7.18'
+    testRuntime 'org.slf4j:slf4j-simple:1.7.21'
 
     testRuntime "org.codehaus.griffon:griffon-guice:${griffon.version}"
     testRuntime "org.codehaus.griffon:griffon-groovy:${griffon.version}"
