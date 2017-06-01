@@ -5,16 +5,17 @@ griffon {
     disableDependencyResolution = false
     includeGroovyDependencies = false
     version = rootProject.griffonVersion
+    applicationProject = false
 }
 
 apply from: rootProject.file('gradle/code-coverage.gradle')
 
 dependencies {
-    compile 'org.codehaus.griffon.plugins:griffon-monitor-core:1.1.0'
+    compile 'org.codehaus.griffon.plugins:griffon-monitor-core:2.0.0'
 
-    compile 'com.ohmdb:ohmdb-all:1.0.0'
+    compile "com.ohmdb:ohmdb-all:$ohmdbVersion"
 
-    testRuntime 'org.slf4j:slf4j-simple:1.7.21'
+    testRuntime "org.slf4j:slf4j-simple:$slf4jVersion"
 
     testRuntime "org.codehaus.griffon:griffon-guice:${griffon.version}"
     testRuntime "org.codehaus.griffon:griffon-groovy:${griffon.version}"
