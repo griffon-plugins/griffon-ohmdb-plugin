@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +18,8 @@
 package org.codehaus.griffon.runtime.ohmdb;
 
 import com.ohmdb.api.Db;
+import griffon.annotations.core.Nonnull;
+import griffon.annotations.core.Nullable;
 import griffon.plugins.ohmdb.DbCallback;
 import griffon.plugins.ohmdb.DbFactory;
 import griffon.plugins.ohmdb.DbHandler;
@@ -23,8 +27,6 @@ import griffon.plugins.ohmdb.DbStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static griffon.util.GriffonNameUtils.requireNonBlank;
@@ -64,17 +66,6 @@ public class DefaultDbHandler implements DbHandler {
         return doWithDb(dataSourceName, db, callback);
     }
 
-    @Nullable
-    @SuppressWarnings("ThrowFromFinallyBlock")
-    static <R> R doWithDb(@Nonnull String dataSourceName, @Nonnull Db db, @Nonnull DbCallback<R> callback) {
-        requireNonBlank(dataSourceName, ERROR_DATASOURCE_NAME_BLANK);
-        requireNonNull(db, ERROR_DB_NULL);
-        requireNonNull(callback, ERROR_CALLBACK_NULL);
-
-        LOG.debug("Executing statements on db '{}'", dataSourceName);
-        return callback.handle(dataSourceName, db);
-    }
-
     @Override
     public void closeOhmdb() {
         closeOhmdb(DefaultDbFactory.KEY_DEFAULT);
@@ -97,5 +88,16 @@ public class DefaultDbHandler implements DbHandler {
             dbStorage.set(dataSourceName, db);
         }
         return db;
+    }
+
+    @Nullable
+    @SuppressWarnings("ThrowFromFinallyBlock")
+    static <R> R doWithDb(@Nonnull String dataSourceName, @Nonnull Db db, @Nonnull DbCallback<R> callback) {
+        requireNonBlank(dataSourceName, ERROR_DATASOURCE_NAME_BLANK);
+        requireNonNull(db, ERROR_DB_NULL);
+        requireNonNull(callback, ERROR_CALLBACK_NULL);
+
+        LOG.debug("Executing statements on db '{}'", dataSourceName);
+        return callback.handle(dataSourceName, db);
     }
 }

@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +19,19 @@ package griffon.plugins.ohmdb
 
 import com.ohmdb.api.Db
 import com.ohmdb.api.Table
-import com.ohmdb.api.Visitor
+import griffon.annotations.inject.BindTo
 import griffon.core.GriffonApplication
-import griffon.core.RunnableWithArgs
-import griffon.core.test.GriffonUnitRule
-import griffon.inject.BindTo
+import griffon.plugins.ohmdb.events.OhmdbConfigurationSetupEvent
+import griffon.plugins.ohmdb.events.OhmdbConnectEndEvent
+import griffon.plugins.ohmdb.events.OhmdbConnectStartEvent
+import griffon.plugins.ohmdb.events.OhmdbDisconnectEndEvent
+import griffon.plugins.ohmdb.events.OhmdbDisconnectStartEvent
+import griffon.test.core.GriffonUnitRule
 import org.junit.Rule
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import javax.application.event.EventHandler
 import javax.inject.Inject
 
 @Unroll
@@ -46,15 +52,11 @@ class OhmdbSpec extends Specification {
     void 'Open and close default dataSource'() {
         given:
         List eventNames = [
-            'OhmdbConnectStart', 'OhmdbConfigurationSetup', 'OhmdbConnectEnd',
-            'OhmdbDisconnectStart', 'OhmdbDisconnectEnd'
+            'OhmdbConnectStartEvent', 'OhmdbConfigurationSetupEvent', 'OhmdbConnectEndEvent',
+            'OhmdbDisconnectStartEvent', 'OhmdbDisconnectEndEvent'
         ]
-        List events = []
-        eventNames.each { name ->
-            application.eventRouter.addEventListener(name, { Object... args ->
-                events << [name: name, args: args]
-            } as RunnableWithArgs)
-        }
+        TestEventHandler testEventHandler = new TestEventHandler()
+        application.eventRouter.subscribe(testEventHandler)
 
         when:
         dbHandler.withOhmdb { String dataSourceName, Db db ->
@@ -65,8 +67,8 @@ class OhmdbSpec extends Specification {
         dbHandler.closeOhmdb()
 
         then:
-        events.size() == 5
-        events.name == eventNames
+        testEventHandler.events.size() == 5
+        testEventHandler.events == eventNames
     }
 
     void 'Connect to default dataSource'() {
@@ -162,4 +164,33 @@ class OhmdbSpec extends Specification {
 
     @BindTo(OhmdbBootstrap)
     private TestOhmdbBootstrap bootstrap = new TestOhmdbBootstrap()
+
+    private class TestEventHandler {
+        List<String> events = []
+
+        @EventHandler
+        void handleOhmdbConnectStartEvent(OhmdbConnectStartEvent event) {
+            events << event.class.simpleName
+        }
+
+        @EventHandler
+        void handleOhmdbConfigurationSetupEvent(OhmdbConfigurationSetupEvent event) {
+            events << event.class.simpleName
+        }
+
+        @EventHandler
+        void handleOhmdbConnectEndEvent(OhmdbConnectEndEvent event) {
+            events << event.class.simpleName
+        }
+
+        @EventHandler
+        void handleOhmdbDisconnectStartEvent(OhmdbDisconnectStartEvent event) {
+            events << event.class.simpleName
+        }
+
+        @EventHandler
+        void handleOhmdbDisconnectEndEvent(OhmdbDisconnectEndEvent event) {
+            events << event.class.simpleName
+        }
+    }
 }

@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,28 +22,28 @@ dataSource {
 environments {
     development {
         dataSource {
-            name = '@application.name@-dev.bin'
+            name = '${application_name}-dev.bin'
         }
     }
     test {
         dataSource {
-            name = '@application.name@-test.bin'
+            name = '${application_name}-test.bin'
         }
     }
     production {
         dataSource {
-            name = '@application.name@-prod.bin'
+            name = '${application_name}-prod.bin'
         }
     }
 }
 
 dataSources {
     internal {
-        name = '@application.name@-internal.bin'
+        name = '${application_name}-internal.bin'
         delete = true
     }
     people {
-        name = '@application.name@-people.bin'
+        name = '${application_name}-people.bin'
         delete = true
     }
 }

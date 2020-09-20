@@ -20,7 +20,7 @@ environment may connect to a different datasource.
 [source,groovy,options="nowrap"]
 .src/main/resources/Ohmdb.groovy
 ----
-include::{path_griffon_ohmdb_core}/src/test/resources/Ohmdb.groovy[lines=16..36]
+include::{path_griffon_ohmdb_core}/src/test/resources/Ohmdb.groovy[lines=18..38]
 ----
 
 You may configure multiple named datasources (the default factory is aptly named `default`) as the following snippet
@@ -29,7 +29,7 @@ shows
 [source,groovy,options="nowrap"]
 .src/main/resources/Ohmdb.groovy
 ----
-include::{path_griffon_ohmdb_core}/src/test/resources/Ohmdb.groovy[lines=38..47]
+include::{path_griffon_ohmdb_core}/src/test/resources/Ohmdb.groovy[lines=40..-1]
 ----
 
 The following properties are optional
@@ -60,7 +60,7 @@ with JDK8+ or closures if running Groovy.
 [source,java,options="nowrap"]
 .griffon.plugins.ohmdb.DbCallback.java
 ----
-include::{path_griffon_ohmdb_core}/src/main/java/griffon/plugins/ohmdb/DbCallback.java[lines=26..-1]
+include::{path_griffon_ohmdb_core}/src/main/java/griffon/plugins/ohmdb/DbCallback.java[lines=27..-1]
 ----
 
 === Bootstrap
@@ -124,17 +124,17 @@ The following is a trivial usage of the `{api_db_handler}` inside a Java service
 package com.acme;
 
 import griffon.core.artifact.GriffonService;
-import griffon.metadata.ArtifactProviderFor;
 import org.codehaus.griffon.runtime.core.artifact.AbstractGriffonService;
 
 import griffon.plugins.ohmdb.DbHandler;
 import griffon.plugins.ohmdb.DbCallback;
 import com.ohmdb.api.Db;
+import org.kordamp.jipsy.ServiceProviderFor;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-@ArtifactProviderFor(GriffonService.class)
+@ServiceProviderFor(GriffonService.class)
 public class SampleService extends AbstractGriffonService {
     @Inject
     private DbHandler dbHandler;
@@ -156,13 +156,12 @@ Here's the Groovy version of it
 package com.acme
 
 import griffon.core.artifact.GriffonService
-import griffon.metadata.ArtifactProviderFor
-
 import griffon.plugins.ohmdb.DbHandler
+import org.kordamp.jipsy.ServiceProviderFor;
 
 import javax.inject.Inject
 
-@ArtifactProviderFor(GriffonService)
+@ServiceProviderFor(GriffonService)
 class SampleService {
     @Inject
     private DbHandler dbHandler
@@ -179,11 +178,11 @@ class SampleService {
 
 The following events will be triggered by `{api_db_handler}`
 
-OhmdbConnectStart(String dataSourceName, Map<String, Object> config):: Triggered before connecting to the datasource.
-OhmdbConfigurationSetup(String dataSourceName, Map<String, Object> config, Db db):: Triggered when configuring the database
-OhmdbConnectEnd(String dataSourceName, Map<String, Object> config, Db db):: Triggered after connecting to the datasource.
-OhmdbDisconnectStart(String dataSourceName, Map<String, Object> config, Db db):: Triggered before disconnecting from the datasource.
-OhmdbDisconnectEnd(String dataSourceName, Map<String, Object> config):: Triggered after disconnecting from the datasource.
+OhmdbConnectStartEvent(String dataSourceName, Map<String, Object> config):: Triggered before connecting to the datasource.
+OhmdbConfigurationSetupEvent(String dataSourceName, Map<String, Object> config, Db db):: Triggered when configuring the database
+OhmdbConnectEndEvent(String dataSourceName, Map<String, Object> config, Db db):: Triggered after connecting to the datasource.
+OhmdbDisconnectStartEvent(String dataSourceName, Map<String, Object> config, Db db):: Triggered before disconnecting from the datasource.
+OhmdbDisconnectEndEvent(String dataSourceName, Map<String, Object> config):: Triggered after disconnecting from the datasource.
 
 NOTE: DataSource events may be triggered during connection and disconnection from a `com.ohmdb.api.Db`.
 
@@ -198,13 +197,13 @@ into said class. The previous Groovy service example can be rewritten as follows
 package com.acme
 
 import griffon.core.artifact.GriffonService
-import griffon.metadata.ArtifactProviderFor
 import griffon.transform.OhmdbAware
 
 import com.ohmdb.api.Db
+import org.kordamp.jipsy.ServiceProviderFor;
 
 @OhmdbAware
-@ArtifactProviderFor(GriffonService)
+@ServiceProviderFor(GriffonService)
 class SampleService {
     String getPersonName(int id) {
          withOhmdb { String dataSourceName, Db db ->

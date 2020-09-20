@@ -1,11 +1,13 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright 2014-2020 The author and/or original authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +19,20 @@ package org.codehaus.griffon.runtime.ohmdb;
 
 import com.ohmdb.api.Db;
 import com.ohmdb.api.Ohm;
+import griffon.annotations.core.Nonnull;
 import griffon.core.Configuration;
 import griffon.core.GriffonApplication;
 import griffon.core.injection.Injector;
 import griffon.exceptions.GriffonException;
 import griffon.plugins.ohmdb.DbFactory;
 import griffon.plugins.ohmdb.OhmdbBootstrap;
+import griffon.plugins.ohmdb.events.OhmdbConfigurationSetupEvent;
+import griffon.plugins.ohmdb.events.OhmdbConnectEndEvent;
+import griffon.plugins.ohmdb.events.OhmdbConnectStartEvent;
+import griffon.plugins.ohmdb.events.OhmdbDisconnectEndEvent;
+import griffon.plugins.ohmdb.events.OhmdbDisconnectStartEvent;
 import org.codehaus.griffon.runtime.core.storage.AbstractObjectFactory;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
@@ -37,7 +44,6 @@ import java.util.Set;
 import static griffon.util.ConfigUtils.getConfigValueAsBoolean;
 import static griffon.util.ConfigUtils.getConfigValueAsString;
 import static griffon.util.GriffonNameUtils.requireNonBlank;
-import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -57,7 +63,7 @@ public class DefaultDbFactory extends AbstractObjectFactory<Db> implements DbFac
         dataSourceNames.add(KEY_DEFAULT);
 
         if (configuration.containsKey(getPluralKey())) {
-            Map<String, Object> ohmdbs = (Map<String, Object>) configuration.get(getPluralKey());
+            Map<String, Object> ohmdbs = configuration.get(getPluralKey());
             dataSourceNames.addAll(ohmdbs.keySet());
         }
     }
@@ -97,7 +103,7 @@ public class DefaultDbFactory extends AbstractObjectFactory<Db> implements DbFac
             throw new IllegalArgumentException("DataSource '" + config + "' is not configured.");
         }
 
-        event("OhmdbConnectStart", asList(name, config));
+        event(OhmdbConnectStartEvent.of(name, config));
 
         Db db = createDb(config, name);
 
@@ -105,7 +111,7 @@ public class DefaultDbFactory extends AbstractObjectFactory<Db> implements DbFac
             ((OhmdbBootstrap) o).init(name, db);
         }
 
-        event("OhmdbConnectEnd", asList(name, config, db));
+        event(OhmdbConnectEndEvent.of(name, config, db));
 
         return db;
     }
@@ -120,7 +126,7 @@ public class DefaultDbFactory extends AbstractObjectFactory<Db> implements DbFac
             throw new IllegalArgumentException("DataSource '" + config + "' is not configured.");
         }
 
-        event("OhmdbDisconnectStart", asList(name, config, instance));
+        event(OhmdbDisconnectStartEvent.of(name, config, instance));
 
         for (Object o : injector.getInstances(OhmdbBootstrap.class)) {
             ((OhmdbBootstrap) o).destroy(name, instance);
@@ -128,7 +134,7 @@ public class DefaultDbFactory extends AbstractObjectFactory<Db> implements DbFac
 
         destroyDb(config, instance);
 
-        event("OhmdbDisconnectEnd", asList(name, config));
+        event(OhmdbDisconnectEndEvent.of(name, config));
     }
 
     @Nonnull
@@ -137,7 +143,7 @@ public class DefaultDbFactory extends AbstractObjectFactory<Db> implements DbFac
         Db db = null;
         try {
             db = Ohm.db(dbfile.getCanonicalPath());
-            event("OhmdbConfigurationSetup", asList(name, config, db));
+            event(OhmdbConfigurationSetupEvent.of(name, config, db));
             return db;
         } catch (IOException ioe) {
             throw new GriffonException(ioe);

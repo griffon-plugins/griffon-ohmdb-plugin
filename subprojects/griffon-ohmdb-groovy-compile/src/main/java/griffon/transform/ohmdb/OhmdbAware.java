@@ -15,16 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package griffon.plugins.ohmdb;
+package griffon.transform.ohmdb;
 
-import com.ohmdb.api.Db;
-import griffon.annotations.core.Nonnull;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * <p>Annotates a class.</p>
+ *
  * @author Andres Almiray
+ * @see griffon.plugins.ohmdb.DbHandler
  */
-public interface OhmdbBootstrap {
-    void init(@Nonnull String dataSourceName, @Nonnull Db db);
-
-    void destroy(@Nonnull String dataSourceName, @Nonnull Db db);
+@Documented
+@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.TYPE})
+public @interface OhmdbAware {
 }

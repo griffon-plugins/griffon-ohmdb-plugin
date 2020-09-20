@@ -20,6 +20,6 @@ import com.intellij.patterns.*
  * @author Andres Almiray
  */
 
-contributor(scope: annotatedScope(ctype: 'griffon.transform.OhmdbAware')) {
+contributor(scope: annotatedScope(ctype: 'griffon.transform.ohmdb.OhmdbAware')) {
     delegatesTo(findClass('griffon.plugins.ohmdb.DbHandler'))
 }
