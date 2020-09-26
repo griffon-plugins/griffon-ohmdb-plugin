@@ -20,9 +20,3 @@ dependencies {
 
     compile "com.ohmdb:ohmdb-all:$ohmdbVersion"
 }
-
-jar {
-    manifest {
-        attributes('Automatic-Module-Name': project.group + '.ohmdb.core')
-    }
-}
