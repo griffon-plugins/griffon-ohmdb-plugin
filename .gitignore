@@ -9,4 +9,4 @@ out
 .project
 .classpath
 .settings
-*.yarv
+.DS_Store

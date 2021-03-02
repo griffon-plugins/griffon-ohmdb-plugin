@@ -101,7 +101,7 @@ package com.acme;
 import griffon.plugins.ohmdb.OhmdbBootstrap;
 import griffon.core.injection.Module;
 import org.codehaus.griffon.runtime.core.injection.AbstractModule;
-import org.kordamp.jipsy.ServiceProviderFor;
+import org.kordamp.jipsy.annotations.ServiceProviderFor;
 
 @ServiceProviderFor(Module.class)
 public class ApplicationModule extends AbstractModule {
@@ -129,7 +129,7 @@ import org.codehaus.griffon.runtime.core.artifact.AbstractGriffonService;
 import griffon.plugins.ohmdb.DbHandler;
 import griffon.plugins.ohmdb.DbCallback;
 import com.ohmdb.api.Db;
-import org.kordamp.jipsy.ServiceProviderFor;
+import org.kordamp.jipsy.annotations.ServiceProviderFor;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -157,7 +157,7 @@ package com.acme
 
 import griffon.core.artifact.GriffonService
 import griffon.plugins.ohmdb.DbHandler
-import org.kordamp.jipsy.ServiceProviderFor;
+import org.kordamp.jipsy.annotations.ServiceProviderFor;
 
 import javax.inject.Inject
 
@@ -200,7 +200,7 @@ import griffon.core.artifact.GriffonService
 import griffon.transform.OhmdbAware
 
 import com.ohmdb.api.Db
-import org.kordamp.jipsy.ServiceProviderFor;
+import org.kordamp.jipsy.annotations.ServiceProviderFor;
 
 @OhmdbAware
 @ServiceProviderFor(GriffonService)
